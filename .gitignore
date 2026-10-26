@@ -1,6 +1,8 @@
 bin/
 obj/
+.idea/
+.vs/
 *.user
 *.suo
-.vscode/
-.idea/
+TestResults/
+.DS_Store

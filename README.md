@@ -1,83 +1,43 @@
-# EduHub — Quản Lý Câu Lạc Bộ & Sự Kiện (Ch01)
+# Ch03 — Clean Architecture + REST API: EduHub Skeleton
 
-Dự án bài tập môn **Phát triển phần mềm hướng đối tượng (IN4211)** — Trường Đại học Đồng Tháp.
+Starter của Bài tập Ch03. Hoàn thành các đoạn `// TODO` (đánh số 1 đến 8), thêm 1 test mới, rồi nộp bằng Pull Request.
+Yêu cầu đầy đủ và thang điểm: xem `de-bai.html` và `rubric.html` trong thư mục cha.
 
----
+## Cấu trúc
 
-## 1. Mô tả thiết kế Domain
+```
+EduHub.Domain/          Entity + interface repository (không phụ thuộc lớp nào)
+EduHub.Application/     Handler của từng use case (phụ thuộc Domain)
+EduHub.Infrastructure/  Repository lưu trong bộ nhớ (phụ thuộc Application)
+EduHub.API/             Controller, Swagger, Program.cs (phụ thuộc Application + Infrastructure)
+EduHub.Tests/           Unit test lớp Application, mock repository bằng Moq
+```
 
-Hệ thống mô hình hóa 5 thực thể cốt lõi:
+## Danh sách TODO
 
-- **`Club`**: Quản lý câu lạc bộ và danh sách thành viên nội bộ qua `AddMember()` (kiểm tra không trùng MSSV).
-- **`Member`**: Lưu thông tin sinh viên (Họ tên, Email, MSSV) và trạng thái hoạt động (`Active` / `Inactive`).
-- **`Event`**: Sự kiện trực thuộc một CLB (`ClubId`), quản lý sức chứa tối đa và hàm kiểm tra còn chỗ `HasCapacity()`.
-- **`Registration`**: Phiếu đăng ký tham dự (bảng nối N-N giữa `Member` và `Event`), có trạng thái `Pending`, `Confirmed`, `Cancelled`.
-- **`CheckIn`**: Bản ghi điểm danh tại sự kiện (quan hệ 1 - 0..1 với `Registration`), hỗ trợ hình thức `QR` và `Manual`.
+| TODO | Tệp | Việc cần làm |
+|---|---|---|
+| 1a–1e | `EduHub.Infrastructure/Repositories/InMemoryClubRepository.cs` | 5 phương thức của kho CLB |
+| 2 | `EduHub.Application/Clubs/GetClubsQuery.cs` | Handler lấy danh sách |
+| 3 | `EduHub.Application/Clubs/GetClubByIdQuery.cs` | Handler lấy theo Id |
+| 4a–4d | `EduHub.Application/Clubs/CreateClubCommand.cs` | Kiểm tra tên, tạo và lưu CLB |
+| 5 | `EduHub.Application/Clubs/DeleteClubCommand.cs` | Handler xoá |
+| 6a–6c | `EduHub.API/Program.cs` | Đăng ký DI |
+| 7 | `EduHub.API/Program.cs` | Cấu hình Swagger |
+| 8a–8i | `EduHub.API/Controllers/ClubsController.cs` | 4 endpoint và status code |
 
-> **Nguyên tắc OOP:** Thuộc tính dùng `private set`, constructor `private`, khởi tạo qua Static Factory `Create(...)` có kiểm tra tính hợp lệ dữ liệu. Sơ đồ lớp chi tiết xem tại [`docs/class-diagram.md`](docs/class-diagram.md).
+## Chạy
 
----
-
-## 2. Cách chạy ứng dụng
-
-Mở terminal tại thư mục dự án và chạy lệnh:
 ```bash
-dotnet run
+dotnet build EduHub.sln      # starter build được ngay (0 lỗi)
+dotnet test                  # ban đầu 4 test đỏ; làm xong TODO thì xanh
+dotnet run --project EduHub.API   # http://localhost:5000/swagger
 ```
-Chương trình cho phép nhập trực tiếp thông tin từ bàn phím (hoặc nhấn **Enter** để chọn nhanh giá trị mẫu).
 
----
+Sau khi thêm test thứ 5 (lấy CLB theo Id, mock bằng Moq), `dotnet test` phải báo 5 passed.
+Không sửa 4 test có sẵn.
 
-## 3. Kết quả chạy thực tế
+## Quy ước nộp bài
 
-```text
-==========================================================
-      EDUHUB - HỆ THỐNG QUẢN LÝ CÂU LẠC BỘ & SỰ KIỆN     
-==========================================================
-
---- [BƯỚC 1] NHẬP THÔNG TIN CÂU LẠC BỘ ---
-Nhập tên CLB: Tech Club
-Nhập mô tả CLB: CLB Lập trình & Đổi mới sáng tạo - DThU
--> Đã tạo CLB: Tech Club (Mã: 3fad9e47-4a44-40ce-a308-c5fd2c77731e)
-
---- [BƯỚC 2] NHẬP THÀNH VIÊN VÀO CLB ---
-Nhập số lượng thành viên muốn thêm: 2
-
-Thành viên #1:
-  - Họ và tên: Nguyễn Văn An
-  - Email: an.nguyen@dthu.edu.vn
-  - Mã số sinh viên (MSSV): 0024417926
-  -> Đã thêm thành công: Nguyễn Văn An (0024417926)
-
-Thành viên #2:
-  - Họ và tên: Trần Thị Bình
-  - Email: binh.tran@dthu.edu.vn
-  - Mã số sinh viên (MSSV): 0024417927
-  -> Đã thêm thành công: Trần Thị Bình (0024417927)
-
---- [BƯỚC 3] TẠO SỰ KIỆN MỚI CHO CLB ---
-Nhập tên sự kiện: Workshop Lập trình C# hướng đối tượng
-Nhập sức chứa tối đa (Capacity): 50
--> Đã tạo sự kiện: Workshop Lập trình C# hướng đối tượng | Sức chứa: 50 chỗ
-
---- [BƯỚC 4] ĐĂNG KÝ THAM GIA SỰ KIỆN ---
--> Sinh viên Nguyễn Văn An (0024417926) đã đăng ký thành công [Trạng thái: Confirmed]
--> Sinh viên Trần Thị Bình (0024417927) đã đăng ký thành công [Trạng thái: Confirmed]
-
---- [BƯỚC 5] ĐIỂM DANH SỰ KIỆN (CHECK-IN) ---
-Tiến hành điểm danh cho: Nguyễn Văn An (0024417926)
-Chọn phương thức (1. Quét mã QR, 2. Thủ công) [Mặc định 1]: 1
--> [CheckIn #c11d01ed] Lúc 16:39:52 12/10/2026 qua [QR] (Phiếu #72a2a9e2)
-
-==========================================================
-   BÁO CÁO THAM DỰ SỰ KIỆN: WORKSHOP LẬP TRÌNH C# HƯỚNG ĐỐI TƯỢNG
-   Đơn vị: Tech Club | Sức chứa: 50 chỗ
-   Số đăng ký: 2 | Đã check-in: 1
-==========================================================
-MSSV       | Họ tên             | Trạng thái   | Điểm danh
-----------------------------------------------------------
-0024417926 | Nguyễn Văn An      | Confirmed    | Đã check-in (QR)
-0024417927 | Trần Thị Bình      | Confirmed    | Chưa check-in
-==========================================================
-Chương trình hoàn tất!
-```
+- Làm trên nhánh riêng (ví dụ `feature/ch03-skeleton`), commit theo Conventional Commits: `feat(club): ...`, `test(club): ...`.
+- Tạo Pull Request về `main`, mô tả đủ what, why, how to test.
