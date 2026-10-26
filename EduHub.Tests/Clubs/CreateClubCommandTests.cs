@@ -1,3 +1,4 @@
+using System.Xml.XPath;
 using EduHub.Application.Clubs;
 using EduHub.Domain.Entities;
 using EduHub.Domain.Interfaces;
@@ -65,5 +66,22 @@ public class GetClubsQueryTests
         // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
+    }
+}
+public class GetClubByIdQueryTests
+{
+    [Fact]
+    public async Task GetClubById_WhenIdExists_ReturnsCorrenctClub()
+    {
+        var club = Club.Create("Tech Club", "Câu lạc bộ công nghệ");
+        var mockRepo = new Mock<IClubRepository>();
+        mockRepo.Setup(r => r.GetByIdAsync(club.Id, default)).ReturnsAsync(club);
+        var handler = new GetClubByIdQueryHandler(mockRepo.Object);
+
+        var result = await handler.HandleAsync(new GetClubByIdQuery(club.Id));
+
+        Assert.NotNull(result);
+        Assert.Equal(club.Id, result!.Id);
+        Assert.Equal("Tech Club", result.Name);
     }
 }
