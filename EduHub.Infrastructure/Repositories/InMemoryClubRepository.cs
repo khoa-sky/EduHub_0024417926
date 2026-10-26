@@ -11,11 +11,11 @@ public class InMemoryClubRepository : IClubRepository
 {
     // static: repository đăng ký Scoped (mỗi request một bản mới) nhưng dữ liệu phải sống suốt vòng đời ứng dụng.
     private static readonly List<Club> _clubs = new();
-
+    private static readonly object _lock = new();
     public Task<IEnumerable<Club>> GetAllAsync(CancellationToken ct = default)
     {
         lock (_lock)
-            return Task.FromResult<IEnumerable<Club>>(_clubs.ToList);
+            return Task.FromResult<IEnumerable<Club>>(_clubs.ToList());
     }
 
     public Task<Club?> GetByIdAsync(Guid id, CancellationToken ct = default)
