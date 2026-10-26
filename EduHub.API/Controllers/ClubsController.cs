@@ -34,7 +34,7 @@ public class ClubsController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<Club>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
-        var clubs = await _getClubByIdHandler.HandleAsync(new GetClubByIdQuery(), ct);
+        var clubs = await _getClubsHandler.HandleAsync(new GetClubsQuery(), ct);
         return Ok(clubs);
     }
 
@@ -58,7 +58,7 @@ public class ClubsController : ControllerBase
         {
             var club = await _createClubHandler.HandleAsync(
                 new CreateClubCommand(request.Name, request.Description), ct);
-            return CreatedAtAction(nameof(getById), new { id = club.Id }, club);
+            return CreatedAtAction(nameof(GetById), new { id = club.Id }, club);
 
         }
         catch (ArgumentException ex)
@@ -81,7 +81,7 @@ public class ClubsController : ControllerBase
         }
         catch (KeyNotFoundException)
         {
-            return NotFound
+            return NotFound();
         }
     }
 }
